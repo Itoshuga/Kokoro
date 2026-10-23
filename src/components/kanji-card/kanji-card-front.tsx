@@ -48,7 +48,12 @@ export function KanjiCardFront({ card }: KanjiCardFrontProps) {
         <span className={styles.japanese} lang="ja">
           {card.reading}
         </span>
-        <span className={styles.meaning}>{card.meaning}</span>
+        <span
+          className={`${styles.meaning} ${card.meaning.length > 26 ? styles.clampedText : ""}`}
+          title={card.meaning}
+        >
+          {card.meaning}
+        </span>
         <span className={styles.baseline} aria-hidden="true" />
         <span className={styles.cardBottomRow}>
           <span className={styles.rarity}>

@@ -29,34 +29,57 @@ export function KanjiCardBack({
       <span className={styles.backGlyph} lang="ja">
         {card.kanji}
       </span>
-      <span className={styles.backTitle}>{card.meaning}</span>
-      <span className={styles.backRom}>{card.romaji}</span>
+      <span
+        className={`${styles.backTitle} ${card.meaning.length > 26 ? styles.clampedText : ""}`}
+        title={card.meaning}
+      >
+        {card.meaning}
+      </span>
+      <span className={styles.backRom} aria-hidden={!card.romaji}>
+        {card.romaji ?? "\u00a0"}
+      </span>
       <span className={styles.backDivider} aria-hidden="true" />
       <span className={styles.backData}>
         <span className={styles.backField}>
           <span>
             LECTURE ON / <span lang="ja">音読み</span>
           </span>
-          <b>{card.onyomi}</b>
+          <b
+            className={card.onyomi.length > 18 ? styles.clampedText : undefined}
+            title={card.onyomi}
+          >
+            {card.onyomi || "—"}
+          </b>
         </span>
         <span className={styles.backField}>
           <span>
             LECTURE KUN / <span lang="ja">訓読み</span>
           </span>
-          <b>{card.kunyomi}</b>
+          <b
+            className={
+              card.kunyomi.length > 18 ? styles.clampedText : undefined
+            }
+            title={card.kunyomi}
+          >
+            {card.kunyomi || "—"}
+          </b>
         </span>
         <span className={styles.backField}>
           <span>
             EXEMPLE / <span lang="ja">用例</span>
           </span>
-          <b>{card.example}</b>
+          <b title={card.example ? undefined : "Aucun exemple fourni"}>
+            {card.example ?? "—"}
+          </b>
         </span>
         <span className={styles.backField}>
           <span>SIGNIFICATION</span>
-          <b>{card.exampleMeaning}</b>
+          <b>{card.exampleMeaning ?? "—"}</b>
         </span>
       </span>
-      <span className={styles.backLore}>« {card.lore} »</span>
+      <span className={styles.backLore}>
+        {card.lore ? `« ${card.lore} »` : "Aucun récit éditorial."}
+      </span>
       <span className={styles.backFooter}>
         <span>✧ {CARD_RARITY_LABELS[card.rarity]}</span>
         <span>

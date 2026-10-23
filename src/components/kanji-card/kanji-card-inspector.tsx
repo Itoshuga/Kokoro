@@ -171,14 +171,17 @@ export function KanjiCardInspector({
                 {card.kanji}
               </span>
             </h2>
-            <p className={styles.inspectorRom}>{card.romaji}</p>
+            <p className={styles.inspectorRom} aria-hidden={!card.romaji}>
+              {card.romaji ?? "\u00a0"}
+            </p>
             <span className={styles.inspectorRarity}>
               ✧ {CARD_RARITY_LABELS[card.rarity]}
             </span>
             <div className={styles.inspectorRule} aria-hidden="true" />
             <p className={styles.inspectorDescription}>
-              Observez les détails de la carte, puis retournez-la pour découvrir
-              les lectures et l’histoire du kanji.
+              {card.lore
+                ? "Observez les détails de la carte, puis retournez-la pour découvrir les lectures et l’histoire du kanji."
+                : "Observez les détails de la carte, puis retournez-la pour découvrir les lectures du kanji."}
             </p>
             <button
               className={styles.inspectorAction}

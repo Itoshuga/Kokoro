@@ -1,4 +1,4 @@
-import type { KanjiCardCollection, KanjiCardData } from "@/types/kanji-card";
+import type { KanjiCardCollection, KanjiCardData } from "../types/kanji-card.ts";
 
 const originCollection = {
   name: "ORIGIN",

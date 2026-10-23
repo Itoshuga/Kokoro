@@ -1961,3 +1961,12 @@
     transition: none !important;
   }
 }
+
+/* Les libellés longs du dictionnaire gardent la composition des cartes. */
+.clampedText {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}

@@ -9,7 +9,8 @@ lint officiel de Next.js.
 
 ## Démarrage
 
-Prérequis : Node.js 20.9 ou version ultérieure et npm.
+Prérequis : Node.js 24 ou version ultérieure et npm. L’import et les tests utilisent
+le support TypeScript natif de Node.js, sans dépendance supplémentaire.
 
 ```bash
 npm ci
@@ -23,6 +24,7 @@ Ouvrir [localhost:3000](http://localhost:3000).
 ```bash
 npm run lint       # Vérification ESLint
 npm run typecheck  # Génération des types Next.js et vérification TypeScript
+npm test           # Normalisation, données réelles, recherche et raretés
 npm run build      # Compilation pour la production
 npm start          # Serveur de production, après compilation
 ```
@@ -71,3 +73,46 @@ L’inspecteur utilise un dialogue modal natif : focus contenu dans la fenêtre,
 retour du focus à la fermeture et arrière-plan inerte. Entrée ou Espace active
 les boutons, les flèches gauche/droite changent de carte et Échap ferme la fenêtre.
 Le verso masqué est également masqué aux technologies d’assistance.
+
+## Catalogue Origin
+
+`/cards` propose la recherche, les filtres combinés, les tris et la pagination de
+24 cartes côté serveur. Les paramètres sont conservés dans l’URL. Le formulaire
+Next.js fonctionne aussi sans JavaScript ; les saisies ne chargent pas de gros
+index dans le navigateur. Les fiches `/cards/origin-u-xxxx` sont rendues à la demande,
+sans génération statique des 13 108 caractères. L’inspecteur est chargé à son ouverture.
+
+- `data/kanji/` : 13 108 kanji normalisés, 2 021 cartes publiées, provenance et notice
+  CC BY-SA 4.0. Ces fichiers ne sont pas exposés dans `public/`.
+- `scripts/import-kanji.ts` : import reproductible du JSON original, non modifié.
+- `src/types/kanji.ts`, `src/types/kanji-card.ts`, `src/types/catalogue.ts` : modèles
+  linguistiques, cartes et contrats du dépôt séparés.
+- `src/lib/kanji/` : validation, normalisation et sélection de l’édition Origin.
+- `src/lib/catalogue/` : requêtes, index de recherche, raretés, présentations et dépôt
+  fichier réservé au serveur. Le contrat `CatalogueRepository` pourra être implémenté
+  avec Supabase, sans changer les composants de cartes.
+- `src/constants/origin.ts` : série, seuils de rareté et exceptions manuelles.
+- `src/data/kanji-editorial.ts` : traduction française éditoriale de 龍, sans écraser
+  la source. Les cinq cartes du prototype gardent leurs raretés et numéros 001–005.
+- `src/components/catalogue/`, `src/app/cards/` : interface, pagination et fiches.
+- `tests/` : tests natifs Node.js, dont les invariants du référentiel complet.
+
+Le cache serveur charge les JSON une fois par processus et prépare les cinq ordres
+de tri ainsi que les chaînes de recherche. Seules les 24 vues de cartes demandées
+sont transmises au composant client. Les valeurs manquantes restent explicites ; les
+longs libellés sont limités à deux lignes sur la carte, avec leur intégralité sur la
+fiche. Le JLPT est présenté comme historique, jamais comme un niveau actuel.
+
+Pour actualiser les données :
+
+```powershell
+npm run data:import -- "C:\chemin\kanji-all.json"
+npm test
+```
+
+Redémarrer Next.js après un import pour renouveler son cache. Voir la notice dans
+`data/kanji/README.md` pour la provenance, la licence et les transformations.
+Les fichiers normalisés sont inclus dans le traçage de déploiement Next.js.
+
+Limites de cette étape : dépôt local en lecture seule, une seule édition, aucune
+authentification, base Supabase, collection personnelle ou ouverture de booster.

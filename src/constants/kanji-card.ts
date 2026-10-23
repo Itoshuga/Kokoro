@@ -1,4 +1,4 @@
-import type { CardRarity } from "@/types/kanji-card";
+import type { CardRarity } from "../types/kanji-card.ts";
 
 export const CARD_RARITY_LABELS = {
   common: "Commune",
