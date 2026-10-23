@@ -35,7 +35,7 @@ export function KanjiCardBack({
       >
         {card.meaning}
       </span>
-      <span className={styles.backRom} aria-hidden={!card.romaji}>
+      <span className={styles.backRom} lang="ja-Latn" aria-hidden={!card.romaji}>
         {card.romaji ?? "\u00a0"}
       </span>
       <span className={styles.backDivider} aria-hidden="true" />

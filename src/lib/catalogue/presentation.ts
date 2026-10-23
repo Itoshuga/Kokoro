@@ -4,6 +4,7 @@ import { ORIGIN_SERIES } from "../../constants/origin.ts";
 import type { CatalogueEntry } from "../../types/catalogue.ts";
 import type { Kanji } from "../../types/kanji.ts";
 import type { KanjiCardData } from "../../types/kanji-card.ts";
+import { romanizeReading } from "../kanji/romaji.ts";
 
 export function getKanjiTranslation(kanji: Kanji) {
   if (kanji.meanings.fr.length)
@@ -38,16 +39,17 @@ export function toKanjiCardView(
 ): KanjiCardData {
   const demo = demoKanjiCards.find((entry) => entry.kanji === kanji.character);
   const translation = getKanjiTranslation(kanji);
+  const reading =
+    demo?.reading ?? kanji.readings.kun[0] ?? kanji.readings.on[0] ?? "";
   return {
     id: card.id,
     kanji: kanji.character,
     meaning:
       demo?.meaning ?? translation.meanings[0] ?? "Traduction non renseignée",
-    romaji: demo?.romaji ?? null,
+    romaji: demo?.romaji ?? romanizeReading(reading),
     rarity: card.rarity,
     number: String(card.collectionNumber).padStart(3, "0"),
-    reading:
-      demo?.reading ?? kanji.readings.kun[0] ?? kanji.readings.on[0] ?? "",
+    reading,
     onyomi: demo?.onyomi ?? shortReadings(kanji.readings.on),
     kunyomi: demo?.kunyomi ?? shortReadings(kanji.readings.kun),
     example: demo?.example ?? null,

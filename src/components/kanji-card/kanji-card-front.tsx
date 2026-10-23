@@ -43,7 +43,13 @@ export function KanjiCardFront({ card }: KanjiCardFrontProps) {
       <span className={styles.kanji} lang="ja">
         {card.kanji}
       </span>
-      <span className={styles.midtext}>{card.romaji}</span>
+      <span
+        className={styles.midtext}
+        lang="ja-Latn"
+        title={card.romaji ?? undefined}
+      >
+        {card.romaji}
+      </span>
       <span className={styles.bottom}>
         <span className={styles.japanese} lang="ja">
           {card.reading}

@@ -24,7 +24,7 @@ Ouvrir [localhost:3000](http://localhost:3000).
 ```bash
 npm run lint       # Vérification ESLint
 npm run typecheck  # Génération des types Next.js et vérification TypeScript
-npm test           # Normalisation, données réelles, recherche et raretés
+npm test           # Normalisation, données réelles, recherche, raretés et rōmaji
 npm run build      # Compilation pour la production
 npm start          # Serveur de production, après compilation
 ```
@@ -67,7 +67,8 @@ pour les futures cartes.
 - `src/types/kanji-card.ts` : données fortement typées, raretés et collection.
 - `src/data/demo-kanji-cards.ts` : les cinq cartes locales de démonstration.
 - `src/hooks/use-card-tilt.ts` : inclinaison et éclairage, actualisés au plus une
-  fois par image et désactivés sur écran tactile ou avec les animations réduites.
+  fois par image ; le tactile est activé dans l’inspecteur et les préférences de
+  réduction des animations sont respectées.
 
 L’inspecteur utilise un dialogue modal natif : focus contenu dans la fenêtre,
 retour du focus à la fermeture et arrière-plan inerte. Entrée ou Espace active
@@ -102,6 +103,11 @@ de tri ainsi que les chaînes de recherche. Seules les 24 vues de cartes demand�
 sont transmises au composant client. Les valeurs manquantes restent explicites ; les
 longs libellés sont limités à deux lignes sur la carte, avec leur intégralité sur la
 fiche. Le JLPT est présenté comme historique, jamais comme un niveau actuel.
+
+Chaque carte affiche sous le kanji un rōmaji en capitales, calculé côté serveur
+avec WanaKana depuis la lecture kun’yomi affichée, ou on’yomi à défaut. La
+transcription conserve les okurigana en retirant les marqueurs du dictionnaire.
+Les cinq rōmaji du prototype sont préservés ; les lectures source restent intactes.
 
 Pour actualiser les données :
 

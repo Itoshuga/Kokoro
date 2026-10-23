@@ -204,7 +204,7 @@ test("les traits utilisent le décompte principal et les cartes non publiées so
   assert.equal(drafts.search(parseCatalogueQuery({})).total, 0);
 });
 
-test("l'affichage n'invente ni traduction, ni romanisation, ni exemple", () => {
+test("l'affichage n'invente ni traduction, ni exemple, ni récit", () => {
   const unknown = dictionary.find(
     (kanji) => !kanji.meanings.fr.length && !kanji.meanings.en.length,
   )!;
@@ -220,10 +220,43 @@ test("l'affichage n'invente ni traduction, ni romanisation, ni exemple", () => {
     ({ kanji }) => !"山水雷龍夢".includes(kanji.character),
   )!;
   const view = toKanjiCardView(entry, cards.length);
-  assert.equal(view.romaji, null);
   assert.equal(view.example, null);
   assert.equal(view.exampleMeaning, null);
   assert.equal(view.lore, null);
+});
+
+test("les cartes affichent le rōmaji de leur lecture sans modifier la source", () => {
+  const expected = new Map([
+    ["山", "YAMA"],
+    ["水", "MIZU"],
+    ["雷", "KAMINARI"],
+    ["龍", "RYŪ"],
+    ["夢", "YUME"],
+    ["一", "HITO"],
+    ["七", "NANA"],
+    ["上", "UE"],
+    ["不", "FU"],
+    ["与", "ATAERU"],
+  ]);
+  for (const [character, romaji] of expected) {
+    const entry = entries.find(({ kanji }) => kanji.character === character)!;
+    const before = JSON.stringify(entry.kanji);
+    assert.equal(toKanjiCardView(entry, cards.length).romaji, romaji);
+    assert.equal(JSON.stringify(entry.kanji), before);
+  }
+  assert.ok(
+    entries.every((entry) => toKanjiCardView(entry, cards.length).romaji),
+    "Chaque carte publiée possède une lecture romanisable.",
+  );
+
+  const entry = entries.find(({ kanji }) => kanji.character === "不")!;
+  assert.equal(
+    toKanjiCardView(
+      { ...entry, kanji: { ...entry.kanji, readings: { on: [], kun: [] } } },
+      cards.length,
+    ).romaji,
+    null,
+  );
 });
 
 test("mesure des recherches sur les 2 021 cartes, sans payload du dictionnaire", (t) => {

@@ -33,8 +33,16 @@ avec français et fréquence sont sélectionnées, ainsi que 龍, conservé du p
 
 Les traductions éditoriales sont séparées dans `src/data/kanji-editorial.ts`.
 En particulier, « Dragon » ne remplace jamais la liste française vide de 龍 dans
-le dictionnaire. Les exemples, romanisations et récits des cinq cartes existantes
-restent des éléments éditoriaux du prototype ; aucun n’est généré pour les autres.
+le dictionnaire. Les exemples et récits des cinq cartes existantes restent des
+éléments éditoriaux du prototype ; aucun n’est généré pour les autres.
+
+Le rōmaji est calculé à l’affichage côté serveur avec WanaKana, à partir de la
+première lecture kun’yomi disponible, ou de la première on’yomi à défaut. Les
+points d’okurigana et tirets d’affixe sont retirés pour la transcription, sans
+modifier les lectures du dictionnaire. Les rōmaji éditoriaux des cinq cartes du
+prototype restent prioritaires. Aucune prononciation n’est déduite d’un kanji
+sans lecture renseignée. Un kanji peut avoir plusieurs lectures : le rōmaji
+affiché en représente une, sans prétendre correspondre à tous ses emplois.
 
 ## Mise à jour reproductible
 

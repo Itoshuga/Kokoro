@@ -71,8 +71,8 @@ export default async function KanjiDetailPage({
             Cliquez sur la carte pour l’inspecter et la retourner.
           </p>
           <p className={styles.editorialNote}>
-            Les exemples, romanisations et récits sont uniquement affichés
-            lorsqu’ils ont été fournis par le prototype éditorial.
+            Le rōmaji transcrit la lecture japonaise affichée. Les exemples et
+            récits proviennent uniquement du prototype éditorial.
           </p>
         </section>
         <article className={styles.kanjiInformation}>
