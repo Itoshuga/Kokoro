@@ -10,7 +10,7 @@ type CardTiltStyle = CSSProperties & {
   "--my": string;
 };
 
-export function useCardTilt(enabled: boolean) {
+export function useCardTilt(enabled: boolean, allowTouch = false) {
   const [style, setStyle] = useState<CardTiltStyle>();
   const pendingStyle = useRef<CardTiltStyle | undefined>(undefined);
   const frame = useRef<number | null>(null);
@@ -24,7 +24,7 @@ export function useCardTilt(enabled: boolean) {
   function onPointerMove(event: PointerEvent<HTMLButtonElement>) {
     if (
       !enabled ||
-      event.pointerType === "touch" ||
+      (event.pointerType === "touch" && !allowTouch) ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       return;

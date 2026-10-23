@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, MouseEvent, PointerEvent } from "react";
 
-import { CARD_RARITY_LABELS } from "@/constants/kanji-card";
+import { useCardTilt } from "@/hooks/use-card-tilt";
 import type { KanjiCardData } from "@/types/kanji-card";
 
 import { KanjiCardBack } from "./kanji-card-back";
@@ -28,9 +28,16 @@ export function KanjiCardInspector({
     flipped: false,
   });
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const flipButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const nextButtonRef = useRef<HTMLButtonElement>(null);
-  const titleId = useId();
+  const gesture = useRef<{
+    pointerId: number;
+    x: number;
+    y: number;
+    moved: boolean;
+  } | null>(null);
+  const hintId = useId();
+  const tilt = useCardTilt(holographic, true);
   const card = cards[inspection.index];
 
   useEffect(() => {
@@ -40,6 +47,7 @@ export function KanjiCardInspector({
     const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     dialog.showModal();
+    flipButtonRef.current?.focus({ preventScroll: true });
     document.body.style.overflow = "hidden";
 
     return () => {
@@ -53,175 +61,146 @@ export function KanjiCardInspector({
 
   if (!card) return null;
 
-  function navigate(direction: -1 | 1) {
-    setInspection((current) => ({
-      index: (current.index + direction + cards.length) % cards.length,
-      flipped: false,
-    }));
-  }
-
-  function flip() {
-    setInspection((current) => ({ ...current, flipped: !current.flipped }));
-  }
-
   function onKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (event.key === "Tab") {
-      if (event.shiftKey && document.activeElement === closeButtonRef.current) {
-        event.preventDefault();
-        nextButtonRef.current?.focus();
-      } else if (
-        !event.shiftKey &&
-        document.activeElement === nextButtonRef.current
-      ) {
+      if (event.shiftKey && document.activeElement === flipButtonRef.current) {
         event.preventDefault();
         closeButtonRef.current?.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === closeButtonRef.current
+      ) {
+        event.preventDefault();
+        flipButtonRef.current?.focus();
       }
       return;
     }
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       event.preventDefault();
-      navigate(event.key === "ArrowRight" ? 1 : -1);
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      setInspection((current) => ({
+        index: (current.index + direction + cards.length) % cards.length,
+        flipped: false,
+      }));
+      tilt.onPointerLeave();
     }
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLButtonElement>) {
+    if (!event.isPrimary || event.button !== 0) return;
+    gesture.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
+    };
+    if (event.pointerType === "touch") {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    if (!event.isPrimary) return;
+    const start = gesture.current;
+    if (
+      start?.pointerId === event.pointerId &&
+      Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8
+    ) {
+      start.moved = true;
+    }
+    tilt.onPointerMove(event);
+  }
+
+  function onFlip(event: MouseEvent<HTMLButtonElement>) {
+    // Un glissement incline la carte ; seuls un appui ou le clavier la retournent.
+    const dragged = event.detail !== 0 && gesture.current?.moved;
+    gesture.current = null;
+    if (dragged) return;
+    setInspection((current) => ({ ...current, flipped: !current.flipped }));
   }
 
   return (
     <dialog
       ref={dialogRef}
       className={`${styles.overlay} ${styles.inspectionOverlay} ${holographic ? "" : styles.holoOff}`}
-      aria-labelledby={titleId}
+      aria-label={`Carte ${card.kanji} — ${card.meaning}`}
+      aria-describedby={hintId}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
       }}
       onKeyDown={onKeyDown}
-      onPointerDown={(event) => {
+      onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div
-        className={`${styles.inspector} ${styles[`inspector--${card.rarity}`]}`}
-      >
-        <header className={styles.inspectorHead}>
-          <div className={styles.inspectorBrand}>
-            <span className={styles.inspectorSymbol} lang="ja">
-              心
-            </span>
-            <span>
-              KOKORO <small>CARTE / INSPECTION</small>
-            </span>
-          </div>
-          <button
-            ref={closeButtonRef}
-            className={styles.inspectorClose}
-            type="button"
-            aria-label="Fermer"
-            onClick={onClose}
-          >
-            ✕
-          </button>
-        </header>
-        <div className={styles.inspectorBody}>
-          <div className={styles.inspectorCardArea}>
-            <div
-              className={`${styles.flip} ${inspection.flipped ? styles["flip--turned"] : ""}`}
-            >
-              <span className={styles.flipInner}>
+      <div className={styles.inspector}>
+        <div
+          className={`${styles.flip} ${inspection.flipped ? styles["flip--turned"] : ""}`}
+          style={tilt.style}
+        >
+          <span className={styles.flipTilt}>
+            <span className={styles.flipInner}>
+              <span
+                className={styles.flipFront}
+                aria-hidden={inspection.flipped}
+              >
                 <span
-                  className={styles.flipFront}
-                  aria-hidden={inspection.flipped}
+                  className={`${styles.card} ${styles[`card--${card.rarity}`]} ${styles["card--large"]}`}
                 >
-                  <span
-                    className={`${styles.card} ${styles[`card--${card.rarity}`]} ${styles["card--large"]}`}
-                  >
-                    <KanjiCardFront card={card} />
-                  </span>
+                  <KanjiCardFront card={card} />
                 </span>
-                <KanjiCardBack card={card} ariaHidden={!inspection.flipped} />
               </span>
-              <button
-                type="button"
-                className={styles.flipTrigger}
-                aria-pressed={inspection.flipped}
-                aria-label={
-                  inspection.flipped
-                    ? `Revenir au recto de la carte ${card.meaning}`
-                    : `Retourner la carte ${card.meaning}`
-                }
-                onClick={flip}
-              />
-            </div>
-            <div className={styles.cardTurnHint}>
-              <span aria-hidden="true">⟳</span>
-              <span>
-                {inspection.flipped
-                  ? "Cliquez pour voir le recto"
-                  : "Cliquez sur la carte pour découvrir le verso"}
-              </span>
-            </div>
-          </div>
-          <aside className={styles.inspectorSide}>
-            <div className={styles.inspectorKicker}>
-              COLLECTION {card.collection.name} <span> / {card.number}</span>
-            </div>
-            <div className={styles.inspectorEyebrow}>INSPECTION DE CARTE</div>
-            <h2 id={titleId}>
-              {card.meaning}
-              <span className={styles.inspectorGlyph} lang="ja">
-                {card.kanji}
-              </span>
-            </h2>
-            <p className={styles.inspectorRom} aria-hidden={!card.romaji}>
-              {card.romaji ?? "\u00a0"}
-            </p>
-            <span className={styles.inspectorRarity}>
-              ✧ {CARD_RARITY_LABELS[card.rarity]}
+              <KanjiCardBack card={card} ariaHidden={!inspection.flipped} />
             </span>
-            <div className={styles.inspectorRule} aria-hidden="true" />
-            <p className={styles.inspectorDescription}>
-              {card.lore
-                ? "Observez les détails de la carte, puis retournez-la pour découvrir les lectures et l’histoire du kanji."
-                : "Observez les détails de la carte, puis retournez-la pour découvrir les lectures du kanji."}
-            </p>
-            <button
-              className={styles.inspectorAction}
-              type="button"
-              onClick={flip}
-            >
-              <span aria-hidden="true">⟳</span>
-              <span>
-                {inspection.flipped ? "Revenir au recto" : "Retourner la carte"}
-              </span>
-              <span aria-hidden="true">↗</span>
-            </button>
-            <div className={styles.inspectorNavigation}>
-              <button
-                type="button"
-                aria-label="Carte précédente"
-                onClick={() => navigate(-1)}
-              >
-                ←
-              </button>
-              <span role="status" aria-live="polite" aria-atomic="true">
-                <span className="sr-only">Carte </span>
-                {String(inspection.index + 1).padStart(2, "0")} <b>/</b>{" "}
-                {String(cards.length).padStart(2, "0")}
-              </span>
-              <button
-                ref={nextButtonRef}
-                type="button"
-                aria-label="Carte suivante"
-                onClick={() => navigate(1)}
-              >
-                →
-              </button>
-            </div>
-            <p className={styles.inspectorShortcuts}>
-              ← → changer de carte · Échap fermer
-            </p>
-          </aside>
+          </span>
+          <button
+            ref={flipButtonRef}
+            type="button"
+            className={styles.flipTrigger}
+            aria-pressed={inspection.flipped}
+            aria-label={
+              inspection.flipped
+                ? `Revenir au recto de la carte ${card.meaning}`
+                : `Retourner la carte ${card.meaning}`
+            }
+            onClick={onFlip}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerLeave={tilt.onPointerLeave}
+            onPointerUp={(event) => {
+              if (event.pointerType === "touch") tilt.onPointerLeave();
+            }}
+            onPointerCancel={() => {
+              gesture.current = null;
+              tilt.onPointerLeave();
+            }}
+          />
         </div>
+        <p className={styles.cardTurnHint} id={hintId}>
+          Bouge la souris ou le doigt pour l’incliner · touche la carte pour la
+          retourner
+        </p>
+        <span
+          className="sr-only"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {card.kanji}, {card.meaning}. Carte {inspection.index + 1} sur{" "}
+          {cards.length}.
+        </span>
       </div>
+      <button
+        ref={closeButtonRef}
+        type="button"
+        className={styles.inspectorClose}
+        aria-label="Fermer la carte"
+        onClick={onClose}
+      >
+        <span aria-hidden="true">✕</span>
+      </button>
     </dialog>
   );
 }

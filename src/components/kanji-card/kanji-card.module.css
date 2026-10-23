@@ -1223,124 +1223,70 @@
 
 .inspectionOverlay {
   z-index: 90;
-  padding: 16px;
+  padding: 32px;
   background: rgba(3, 5, 11, 0.89);
   backdrop-filter: blur(19px);
   overflow: auto;
 }
 
 .inspector {
-  --ka: #c2c9ce;
-  --kg: rgba(175, 196, 214, 0.34);
-  width: min(930px, 100%);
-  max-height: min(95dvh, 900px);
-  overflow: auto;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 22px 29px 30px;
-  background:
-    radial-gradient(ellipse 58% 70% at 34% 54%, var(--kg), transparent 82%),
-    linear-gradient(136deg, #20212d, #101119 65%);
-  box-shadow: 0 25px 110px #000d;
-}
-
-.inspector--rare {
-  --ka: #5de2e5;
-  --kg: rgba(25, 204, 241, 0.16);
-}
-
-.inspector--epic {
-  --ka: #e19cff;
-  --kg: rgba(181, 87, 239, 0.2);
-}
-
-.inspector--legendary {
-  --ka: #ffdda0;
-  --kg: rgba(244, 163, 57, 0.18);
-}
-
-.inspector--mythic {
-  --ka: #f7bbf0;
-  --kg: rgba(226, 121, 245, 0.21);
-}
-
-.inspectorHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ffffff1a;
-}
-
-.inspectorBrand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  font-weight: 700;
-}
-
-.inspectorBrand small {
-  display: block;
-  color: #797b87;
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  margin-top: 5px;
-}
-
-.inspectorSymbol {
-  display: grid;
-  place-items: center;
-  width: 33px;
-  height: 33px;
-  border-radius: 7px;
-  background: #e8dfd1;
-  color: #171820;
-  font-family: "Noto Serif JP", serif;
-  font-size: 20px;
-}
-
-.inspectorClose {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid #ffffff31;
-  background: #ffffff0b;
-  color: #f1edef;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.inspectorBody {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 258px;
-  align-items: center;
-  gap: 35px;
-  padding: 20px 17px 3px;
-}
-
-.inspectorCardArea {
-  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 24px;
+  width: min(560px, 100%);
+  pointer-events: none;
+}
+
+.inspectorClose {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ffffff31;
+  border-radius: 50%;
+  background: #101119;
+  color: #f1edef;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.inspectorClose:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .flip {
   display: block;
+  flex-shrink: 0;
   border: 0;
   padding: 0;
   background: none;
   color: inherit;
-  width: min(340px, 100%, calc(65dvh * 0.69));
+  width: min(380px, 100%, calc((100dvh - 144px) * 0.69));
   aspect-ratio: 0.69;
   perspective: 1600px;
+  container-type: inline-size;
   cursor: pointer;
+  pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+}
+
+.flipTilt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.16s ease-out;
+}
+
+.flip:hover .card::after {
+  opacity: 1;
 }
 
 .flip:has(.flipTrigger:focus-visible) {
@@ -1389,32 +1335,32 @@
 }
 
 .flipFront .kanji {
-  font-size: clamp(97px, 12vw, 166px);
+  font-size: 48.82cqw;
 }
 
 .flipFront .meaning {
-  font-size: 29px;
+  font-size: 8.53cqw;
 }
 
 .flipFront .midtext {
-  font-size: 10px;
+  font-size: 2.94cqw;
 }
 
 .flipFront .headLeft {
-  font-size: 11px;
+  font-size: 3.24cqw;
 }
 
 .flipFront .headLeft small {
-  font-size: 9px;
+  font-size: 2.65cqw;
 }
 
 .flipFront .japanese {
-  font-size: 12px;
+  font-size: 3.53cqw;
 }
 
 .flipFront .rarity,
 .flipFront .number {
-  font-size: 9px;
+  font-size: 2.65cqw;
 }
 
 .flipBack {
@@ -1423,7 +1369,6 @@
   flex-direction: column;
   align-items: stretch;
   color: #f3eee9;
-  padding: 21px 23px 17px;
   text-align: left;
   border: 2px solid var(--ka);
   background:
@@ -1436,6 +1381,7 @@
   box-shadow:
     inset 0 0 0 5px #0e111a,
     inset 0 0 0 6px color-mix(in srgb, var(--ka), transparent 57%);
+  padding: 6.18cqw 6.76cqw 5cqw;
 }
 
 .flipBack::before {
@@ -1456,6 +1402,7 @@
     serif;
   color: var(--ka);
   opacity: 0.045;
+  font-size: 79.41cqw;
 }
 
 .backHeader,
@@ -1476,9 +1423,9 @@
   align-items: start;
   gap: 10px;
   color: var(--ka);
-  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.13em;
+  font-size: 2.94cqw;
 }
 
 .backHeader small {
@@ -1488,6 +1435,7 @@
     9px "Noto Serif JP",
     serif;
   margin-top: 3px;
+  font-size: 2.65cqw;
 }
 
 .backGlyph {
@@ -1496,8 +1444,9 @@
     700 75px/1.2 "Noto Serif JP",
     serif;
   color: #f7ede9;
-  margin-top: 13px;
   text-shadow: 0 0 30px var(--kg);
+  font-size: 22.06cqw;
+  margin-top: 3.82cqw;
 }
 
 .backTitle {
@@ -1506,42 +1455,43 @@
     500 24px "Noto Serif JP",
     serif;
   margin-top: -1px;
+  font-size: 7.06cqw;
 }
 
 .backRom {
   text-align: center;
-  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.28em;
   color: var(--ka);
-  margin-top: 4px;
+  font-size: 2.65cqw;
+  margin-top: 1.18cqw;
 }
 
 .backDivider {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--ka), transparent);
   opacity: 0.47;
-  margin: 17px 0 15px;
+  margin: 5cqw 0 4.41cqw;
 }
 
 .backData {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 10px;
+  gap: 4.12cqw 2.94cqw;
 }
 
 .backField {
   display: flex;
   flex-direction: column;
-  gap: 6px;
   min-width: 0;
+  gap: 1.76cqw;
 }
 
 .backField > span {
-  font-size: 8px;
   color: var(--ka);
   letter-spacing: 0.04em;
   white-space: nowrap;
+  font-size: 2.35cqw;
 }
 
 .backField b {
@@ -1550,289 +1500,56 @@
     serif;
   color: #f2eceb;
   overflow-wrap: anywhere;
+  font-size: 3.82cqw;
 }
 
 .backLore {
   display: block;
   margin-top: auto;
-  padding: 14px 0 12px;
   color: #c5bfc7;
   border-bottom: 1px solid color-mix(in srgb, var(--ka), transparent 68%);
   font:
     italic 11px/1.7 "Noto Serif JP",
     serif;
+  padding: 4.12cqw 0 3.53cqw;
+  font-size: 3.24cqw;
 }
 
 .backFooter {
   display: flex;
   justify-content: space-between;
   gap: 5px;
-  margin-top: 10px;
-  font-size: 8px;
   font-weight: 700;
   color: var(--ka);
   letter-spacing: 0.09em;
+  margin-top: 2.94cqw;
+  font-size: 2.35cqw;
 }
 
 .cardTurnHint {
-  color: #9c97a1;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.cardTurnHint:first-letter {
-  font-size: 18px;
-}
-
-.inspectorSide {
-  min-width: 0;
-  align-self: center;
-}
-
-.inspectorKicker {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--ka);
-}
-
-.inspectorKicker span {
-  color: #737683;
-}
-
-.inspectorEyebrow {
-  margin-top: 32px;
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  color: #93919f;
-}
-
-.inspectorSide h2 {
-  font:
-    500 35px "Noto Serif JP",
-    serif;
-  margin: 11px 0 3px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  flex-wrap: wrap;
-}
-
-.inspectorSide h2 span {
-  font-size: 24px;
-  color: var(--ka);
-}
-
-.inspectorRom {
-  color: #b4aeb7;
-  font-size: 11px;
-  letter-spacing: 0.26em;
   margin: 0;
-}
-
-.inspectorRarity {
-  display: inline-block;
-  padding: 7px 12px;
-  border-radius: 30px;
-  border: 1px solid color-mix(in srgb, var(--ka), transparent 47%);
-  color: var(--ka);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  margin-top: 25px;
-}
-
-.inspectorRule {
-  width: 100%;
-  height: 1px;
-  margin: 25px 0 18px;
-  background: #ffffff25;
-}
-
-.inspectorDescription {
-  margin: 0 0 23px;
-  color: #a3a0aa;
+  max-width: 100%;
+  color: #aaa5af;
   font-size: 12px;
   line-height: 1.8;
-}
-
-.inspectorAction {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: #e6ded6;
-  border: 0;
-  padding: 13px 10px;
-  border-radius: 9px;
-  color: #23212a;
-  font:
-    700 12px "DM Sans",
-    sans-serif;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.inspectorAction:hover {
-  background: #fff;
-}
-
-.inspectorAction span:first-child {
-  font-size: 17px;
-}
-
-.inspectorNavigation {
-  margin-top: 34px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.inspectorNavigation button {
-  background: #ffffff0b;
-  border: 1px solid #ffffff24;
-  border-radius: 8px;
-  color: #e9e3e2;
-  width: 42px;
-  height: 38px;
-  cursor: pointer;
-  font-size: 17px;
-}
-
-.inspectorNavigation button:hover {
-  background: #ffffff20;
-}
-
-.inspectorNavigation span {
-  color: #e3dad8;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-}
-
-.inspectorNavigation b {
-  color: #676a75;
-  padding: 0 6px;
-}
-
-.inspectorShortcuts {
   text-align: center;
-  font-size: 9px;
-  color: #696a78;
-  letter-spacing: 0.03em;
-  margin: 15px 0 0;
+  text-wrap: balance;
 }
 
-@media (max-width: 730px) {
-  .inspectionOverlay {
-    padding: 8px;
-    align-items: flex-start;
-  }
+/* Les deux faces gardent leurs proportions, même sur un écran bas. */
 
-  .inspector {
-    max-height: none;
-    min-height: calc(100dvh - 16px);
-    padding: 16px 14px 22px;
-    border-radius: 15px;
-  }
-
-  .inspectorBody {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 14px 0 0;
-  }
-
-  .flip {
-    width: min(315px, 95%, calc(61dvh * 0.69));
-  }
-
-  .inspectorSide {
-    width: min(390px, 100%);
-    text-align: center;
-  }
-
-  .inspectorEyebrow {
-    margin-top: 8px;
-  }
-
-  .inspectorSide h2 {
-    justify-content: center;
-    margin-top: 8px;
-    font-size: 25px;
-  }
-
-  .inspectorRarity {
-    margin-top: 13px;
-  }
-
-  .inspectorRule {
-    margin: 14px 0 10px;
-  }
-
-  .inspectorDescription {
-    margin-bottom: 13px;
-  }
-
-  .inspectorNavigation {
-    margin-top: 14px;
-  }
-
-  .inspectorShortcuts {
-    margin-top: 8px;
-  }
+.flipFront .head {
+  top: 4.71cqw;
+  left: 5cqw;
+  right: 4.71cqw;
 }
 
-/* La variante compacte du prototype garde aussi le verso lisible sur mobile court. */
-@media (max-height: 680px) {
-  .flip {
-    width: min(285px, 100%, calc(60dvh * 0.69));
-  }
-
-  .backGlyph {
-    font-size: 54px;
-    margin-top: 0;
-  }
-
-  .backDivider {
-    margin: 9px 0;
-  }
-
-  .backData {
-    gap: 6px;
-  }
-
-  .backLore {
-    padding: 7px 0;
-    font-size: 9px;
-  }
-
-  .backTitle {
-    font-size: 19px;
-  }
+.flipFront .bottom {
+  padding: 11.47cqw 4.71cqw 4.12cqw;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .flipInner {
-    transition: none;
-  }
-}
-
-@media (max-width: 730px) {
-  .inspectorBody {
-    align-items: stretch;
-  }
-
-  .inspectorCardArea {
-    width: 100%;
-  }
-
-  .inspectorSide {
-    align-self: center;
-  }
+.flipFront .vertical {
+  font-size: 2.65cqw;
 }
 
 /* Calligraphie Yuji Boku et finitions lumineuses */
@@ -1840,8 +1557,7 @@
 .kanji,
 .bigghost,
 .backGlyph,
-.backDecoration,
-.inspectorGlyph {
+.backDecoration {
   font-family: "Yuji Boku", "Noto Serif CJK JP", serif;
   font-weight: 400;
 }
@@ -1929,11 +1645,11 @@
   background: transparent;
   cursor: pointer;
   outline: none;
+  touch-action: none;
+  user-select: none;
 }
 
 .inspectorClose:focus-visible,
-.inspectorAction:focus-visible,
-.inspectorNavigation button:focus-visible,
 .toggle:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 4px;
@@ -1950,13 +1666,13 @@
 
   .overlay,
   .flipInner,
+  .flipTilt,
   .card,
   .card::after,
   .haloArc,
   .ambient::after,
   .switch,
-  .switch i,
-  .inspectorAction {
+  .switch i {
     animation: none !important;
     transition: none !important;
   }
